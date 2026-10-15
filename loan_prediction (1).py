@@ -1,10 +1,4 @@
-"""
-Mini Project: Loan prediction using Linear Regression
-Dataset: Kaggle "Loan Prediction Problem Dataset" (train.csv)
-Columns: Loan_ID, Gender, Married, Dependents, Education, Self_Employed,
-         ApplicantIncome, CoapplicantIncome, LoanAmount, Loan_Amount_Term,
-         Credit_History, Property_Area, Loan_Status
-"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,29 +7,23 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import (mean_squared_error, r2_score,
                              accuracy_score, confusion_matrix)
 
-# 1. Load data
+
 df = pd.read_csv("train.csv")
 print(df.shape)
 print(df.isnull().sum())
 
-# 2. Clean data (fill missing values)
 for col in ["Gender", "Married", "Dependents", "Self_Employed",
             "Credit_History", "Loan_Amount_Term"]:
     df[col] = df[col].fillna(df[col].mode()[0])
 df["LoanAmount"] = df["LoanAmount"].fillna(df["LoanAmount"].median())
 
-# 3. Feature engineering
 df["TotalIncome"] = df["ApplicantIncome"] + df["CoapplicantIncome"]
 df["Dependents"] = df["Dependents"].replace("3+", 3).astype(int)
 df = df.drop(columns=["Loan_ID"])
 
-# 4. Encode categorical columns
 df_enc = pd.get_dummies(df, drop_first=True)
 
-# ------------------------------------------------------------------
-# PART A: Linear Regression -> predict LoanAmount
-# ------------------------------------------------------------------
-X = df_enc.drop(columns=["LoanAmount", "Loan_Status_Y"])
+lX = df_enc.drop(columns=["LoanAmount", "Loan_Status_Y"])
 y = df_enc["LoanAmount"]
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -60,10 +48,6 @@ plt.title("Linear Regression: Actual vs Predicted")
 plt.savefig("actual_vs_predicted.png", dpi=150)
 plt.show()
 
-# ------------------------------------------------------------------
-# PART B: Loan approval (Yes/No)
-# Linear regression output thresholded at 0.5, compared with logistic
-# ------------------------------------------------------------------
 Xc = df_enc.drop(columns=["Loan_Status_Y"])
 yc = df_enc["Loan_Status_Y"].astype(int)
 Xc_tr, Xc_te, yc_tr, yc_te = train_test_split(
